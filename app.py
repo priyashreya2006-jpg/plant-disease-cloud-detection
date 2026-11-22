@@ -30,15 +30,13 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
-    
     st.image(image, caption="Uploaded Leaf Image")
 
- img = image.resize((224, 224))
-img_array = np.array(img)
-img_array = np.expand_dims(img_array, axis=0)
+    image = image.resize((224, 224))
+    img_array = np.array(image)
+    img_array = np.expand_dims(img_array, axis=0)
 
     prediction = model.predict(img_array)
-
     predicted_class = np.argmax(prediction)
 
     st.success(f"Predicted class: {predicted_class}")
