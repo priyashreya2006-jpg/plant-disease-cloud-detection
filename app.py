@@ -33,9 +33,9 @@ if uploaded_file is not None:
     
     st.image(image, caption="Uploaded Leaf Image")
 
-    img = image.resize((128, 128))
-    img_array = np.array(img)
-    img_array = np.expand_dims(img_array, axis=0)
+   img = image.resize((224, 224))
+img_array = np.array(img)
+img_array = np.expand_dims(img_array, axis=0)
 
     prediction = model.predict(img_array)
 
