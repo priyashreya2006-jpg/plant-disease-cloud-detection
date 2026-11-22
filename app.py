@@ -1,46 +1,44 @@
-
-import gradio as gr
+import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-model = tf.keras.models.load_model("plant_disease_model.keras")
-
-IMG_SIZE = 224
-
-def predict(image):
-    if image is None:
-        return "Please upload a plant leaf image."
-
-    image = image.convert("RGB")
-    image = image.resize((IMG_SIZE, IMG_SIZE))
-
-    img_array = np.array(image)
-    img_array = np.expand_dims(img_array, axis=0)
-
-    predictions = model.predict(img_array, verbose=0)
-    predicted_class = np.argmax(predictions[0])
-    confidence = float(np.max(predictions[0])) * 100
-
-    disease = class_names[predicted_class]
-
-    return f"""
-    ## 🌿 Plant Disease Diagnosis
-
-    **Prediction:** {disease}
-
-    **Confidence:** {confidence:.2f}%
-
-    *AI prediction — please verify with an agricultural expert.*
-    """
-
-demo = gr.Interface(
-    fn=predict,
-    inputs=gr.Image(type="pil", label="Upload Plant Leaf Image"),
-    outputs=gr.Markdown(),
-    title="🌿 AI Plant Disease Detection System",
-    description="Upload a plant leaf image to identify possible diseases."
+st.set_page_config(
+    page_title="Plant Disease Detection",
+    page_icon="🌿",
+    layout="centered"
 )
 
-if __name__ == "__main__":
-    demo.launch()
+st.title("🌿 AI Plant Disease Detection System")
+st.write("Upload a plant leaf image to identify its disease.")
+
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model("plant_disease_model.keras")
+
+try:
+    model = load_model()
+    st.success("Model loaded successfully!")
+except Exception as e:
+    st.error(f"Model loading failed: {e}")
+    st.stop()
+
+uploaded_file = st.file_uploader(
+    "Upload a leaf image",
+    type=["jpg", "jpeg", "png"]
+)
+
+if uploaded_file is not None:
+    image = Image.open(uploaded_file).convert("RGB")
+    
+    st.image(image, caption="Uploaded Leaf Image")
+
+    img = image.resize((128, 128))
+    img_array = np.array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+
+    prediction = model.predict(img_array)
+
+    predicted_class = np.argmax(prediction)
+
+    st.success(f"Predicted class: {predicted_class}")
