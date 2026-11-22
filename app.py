@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -37,6 +38,13 @@ if uploaded_file is not None:
     img_array = np.expand_dims(img_array, axis=0)
 
     prediction = model.predict(img_array)
-    predicted_class = np.argmax(prediction)
 
-    st.success(f"Predicted class: {predicted_class}")
+    predicted_class = int(np.argmax(prediction[0]))
+    confidence = float(np.max(prediction[0])) * 100
+
+    st.subheader("🔍 Prediction Results")
+
+    st.write(f"**Predicted Class:** {predicted_class}")
+    st.write(f"**Confidence:** {confidence:.2f}%")
+    st.write(f"**Total Classes:** {prediction.shape[1]}")
+```
